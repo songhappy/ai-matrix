@@ -60,7 +60,7 @@ class Model(object):
                     dtype = self.model_dtype,
                     name='target_ph') 
                 
-                self.lr = 0.5 # half it every iteration
+                self.lr = 1 # half it every iteration
                 self.use_negsampling = use_negsampling
                 if use_negsampling:
                     self.noclk_mid_batch_ph = tf.random.uniform([batch_size, max_length, 5], #TODO, 5 is neg_samples, preset in data_iterator.py

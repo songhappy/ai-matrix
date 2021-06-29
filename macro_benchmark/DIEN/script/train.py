@@ -16,6 +16,8 @@ parser.add_argument("--batch_size", type=int, default=128, help="batch size")
 parser.add_argument("--data_type", type=str, default='FP32', help="data type: FP32 or FP16")
 parser.add_argument("--num_accelerators", type=int, default=1, help="number of accelerators used for training")
 parser.add_argument("--embedding_device", type=str, default='gpu', help="synthetic input embedding layer reside on gpu or cpu")
+parser.add_argument("--data", type=str, default='/home/arda/intelWork/git/learn/dien_data_b5/', help="data_path")
+
 args = parser.parse_args()
 
 EMBEDDING_DIM = 18
@@ -203,13 +205,12 @@ def train_synthetic(
         print("Approximate accelerator time in seconds is %.3f" % approximate_accelerator_time)
         print("Approximate accelerator performance in recommendations/second is %.3f" % (float(iter * batch_size)/float(approximate_accelerator_time)))
 
-     
 def train(
-        train_file = "local_train_splitByUser",
-        test_file = "local_test_splitByUser",
-        uid_voc = "uid_voc.pkl",
-        mid_voc = "mid_voc.pkl",
-        cat_voc = "cat_voc.pkl",
+        train_file = args.data + "local_train_splitByUser",
+        test_file = args.data +"local_test_splitByUser",
+        uid_voc = args.data +"uid_voc.pkl",
+        mid_voc = args.data +"mid_voc.pkl",
+        cat_voc = args.data +"cat_voc.pkl",
         batch_size = 128,
         maxlen = 100,
         test_iter = 100,
@@ -267,7 +268,7 @@ def train(
         train_size = 0
         approximate_accelerator_time = 0
 
-        for itr in range(1):
+        for itr in range(3):
             loss_sum = 0.0
             accuracy_sum = 0.
             aux_loss_sum = 0.
@@ -308,11 +309,11 @@ def train(
         print("Approximate accelerator performance in recommendations/second is %.3f" % (float(TOTAL_TRAIN_SIZE)/float(approximate_accelerator_time)))
 
 def test(
-        train_file = "local_train_splitByUser",
-        test_file = "local_test_splitByUser",
-        uid_voc = "uid_voc.pkl",
-        mid_voc = "mid_voc.pkl",
-        cat_voc = "cat_voc.pkl",
+        train_file = args.data + "local_train_splitByUser",
+        test_file = args.data +"local_test_splitByUser",
+        uid_voc = args.data +"uid_voc.pkl",
+        mid_voc = args.data +"mid_voc.pkl",
+        cat_voc = args.data +"cat_voc.pkl",
         batch_size = 128,
         maxlen = 100,
         model_type = 'DNN',
@@ -321,7 +322,7 @@ def test(
 ):
     print("batch_size: ", batch_size)
     print("model: ", model_type)
-    model_path = "dnn_best_model_trained/ckpt_noshuff" + model_type + str(seed)
+    model_path = "dnn_best_model/ckpt_noshuff" + model_type + str(seed)
     gpu_options = tf.GPUOptions(allow_growth=True)
     with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
         train_data = DataIterator(train_file, uid_voc, mid_voc, cat_voc, batch_size, maxlen)
